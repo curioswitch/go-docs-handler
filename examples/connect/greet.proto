@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package greet;
+option go_package="github.com/curioswitch/go-docs-handler/examples/connect/greet";
+
+// A greeting to a particular person.
+message Greeting {
+  // The first name of the person being greeted.
+  string first_name = 1;
+  // The last name of the person being greeted.
+  string last_name = 2;
+}
+
+// A request to perform a greeting.
+message GreetingRequest {
+  // The greeting to perform.
+  Greeting greeting = 1;
+}
+
+// A response to a greeting.
+message GreetingResponse {
+  // The result of the greeting.
+  string result = 1;
+}
+
+// The greeting service definition.
+service GreetService{
+  // Greets a particular person.
+  rpc Greet(GreetingRequest) returns (GreetingResponse) {};
+}
