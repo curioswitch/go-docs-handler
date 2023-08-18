@@ -29,7 +29,7 @@ type Field struct {
 	Name            string          `json:"name"`
 	Location        string          `json:"location"`
 	Requirement     string          `json:"requirement"`
-	TypeSignature   string          `json:"typeSignature"`
+	TypeSignature   TypeSignature   `json:"typeSignature"`
 	DescriptionInfo DescriptionInfo `json:"descriptionInfo"`
 }
 
@@ -43,9 +43,9 @@ type Struct struct {
 type Method struct {
 	Name                    string                   `json:"name"`
 	ID                      string                   `json:"id"`
-	ReturnTypeSignature     string                   `json:"returnTypeSignature"`
+	ReturnTypeSignature     TypeSignature            `json:"returnTypeSignature"`
 	Parameters              Array[Field]             `json:"parameters"`
-	ExceptionTypeSignatures Array[string]            `json:"exceptionTypeSignatures"`
+	ExceptionTypeSignatures Array[TypeSignature]     `json:"exceptionTypeSignatures"`
 	Endpoints               Array[Endpoint]          `json:"endpoints"`
 	ExampleHeaders          Array[map[string]string] `json:"exampleHeaders"`
 	ExampleRequests         Array[string]            `json:"exampleRequests"`

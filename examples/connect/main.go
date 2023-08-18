@@ -33,8 +33,25 @@ func main() {
 type greetService struct{}
 
 func (s *greetService) Greet(ctx context.Context, req *connect.Request[greet.GreetingRequest]) (*connect.Response[greet.GreetingResponse], error) {
+	g := req.Msg.GetGreeting()
+
+	res := "Who are you?"
+	switch n := g.GetName().(type) {
+	case *greet.Greeting_Nickname:
+		res = fmt.Sprintf("Hello there, %s", n.Nickname)
+	case *greet.Greeting_FullName_:
+		res = fmt.Sprintf("Hello there, %s %s", n.FullName.GetFirstName(), n.FullName.GetLastName())
+	case *greet.Greeting_KnownName_:
+		switch n.KnownName {
+		case greet.Greeting_BOB:
+			res = "Hello there, Bob"
+		case greet.Greeting_ALICE:
+			res = "Hello there, Alice"
+		}
+	}
+
 	resp := &greet.GreetingResponse{
-		Result: fmt.Sprintf("Hello there, %s %s", req.Msg.GetGreeting().GetFirstName(), req.Msg.GetGreeting().GetLastName()),
+		Result: res,
 	}
 	return connect.NewResponse(resp), nil
 }

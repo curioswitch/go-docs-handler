@@ -8,6 +8,7 @@ import (
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
+	"net/http"
 )
 
 func NewPlugin(serializedDescriptors []byte) docshandler.Plugin {
@@ -34,7 +35,12 @@ func (p *plugin) GenerateSpecification() (*specification.Specification, error) {
 		extractDocStrings(file, docstrings)
 		fileDesc, _ := protodesc.NewFile(file, nil)
 		for i := 0; i < fileDesc.Messages().Len(); i++ {
-			spec.Structs = append(spec.Structs, convertMessage(fileDesc.Messages().Get(i), docstrings))
+			structs, enums := convertMessage(fileDesc.Messages().Get(i), docstrings)
+			spec.Structs = append(spec.Structs, structs...)
+			spec.Enums = append(spec.Enums, enums...)
+		}
+		for i := 0; i < fileDesc.Enums().Len(); i++ {
+			spec.Enums = append(spec.Enums, convertEnum(fileDesc.Enums().Get(i), docstrings))
 		}
 		for i := 0; i < fileDesc.Services().Len(); i++ {
 			spec.Services = append(spec.Services, convertService(fileDesc.Services().Get(i), docstrings))
@@ -44,7 +50,7 @@ func (p *plugin) GenerateSpecification() (*specification.Specification, error) {
 	return spec, nil
 }
 
-func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]string) specification.Struct {
+func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]string) ([]specification.Struct, []specification.Enum) {
 	res := specification.Struct{
 		Name: string(msg.FullName()),
 	}
@@ -58,7 +64,20 @@ func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]st
 		res.Fields = append(res.Fields, convertField(msg, msg.Fields().Get(i), docstrings))
 	}
 
-	return res
+	var enums []specification.Enum
+	structs := []specification.Struct{res}
+
+	for i := 0; i < msg.Enums().Len(); i++ {
+		enums = append(enums, convertEnum(msg.Enums().Get(i), docstrings))
+	}
+
+	for i := 0; i < msg.Messages().Len(); i++ {
+		s, e := convertMessage(msg.Messages().Get(i), docstrings)
+		structs = append(structs, s...)
+		enums = append(enums, e...)
+	}
+
+	return structs, enums
 }
 
 func convertField(msg protoreflect.MessageDescriptor, field protoreflect.FieldDescriptor, docstrings map[string]string) specification.Field {
@@ -77,58 +96,69 @@ func convertField(msg protoreflect.MessageDescriptor, field protoreflect.FieldDe
 		res.DescriptionInfo.Markup = "NONE"
 	}
 
-	var typeSignature string
+	res.TypeSignature = fieldTypeSignature(field)
+
+	return res
+}
+
+func fieldTypeSignature(field protoreflect.FieldDescriptor) specification.TypeSignature {
+	if field.IsMap() {
+		return specification.NewMapTypeSignature(
+			fieldTypeSignature(field.MapKey()),
+			fieldTypeSignature(field.MapValue()),
+		)
+	}
+
+	var typeSignature specification.TypeSignature
 	switch field.Kind() {
 	case protoreflect.BoolKind:
-		typeSignature = typeSignatureBool
+		typeSignature = protoTypeSignatureBool
 	case protoreflect.BytesKind:
-		typeSignature = typeSignatureBytes
+		typeSignature = protoTypeSignatureBytes
 	case protoreflect.DoubleKind:
-		typeSignature = typeSignatureDouble
+		typeSignature = protoTypeSignatureDouble
 	case protoreflect.Fixed32Kind:
-		typeSignature = typeSignatureFixed32
+		typeSignature = protoTypeSignatureFixed32
 	case protoreflect.Fixed64Kind:
-		typeSignature = typeSignatureFixed64
+		typeSignature = protoTypeSignatureFixed64
 	case protoreflect.FloatKind:
-		typeSignature = typeSignatureFloat
+		typeSignature = protoTypeSignatureFloat
 	case protoreflect.Int32Kind:
-		typeSignature = typeSignatureInt32
+		typeSignature = protoTypeSignatureInt32
 	case protoreflect.Int64Kind:
-		typeSignature = typeSignatureInt64
+		typeSignature = protoTypeSignatureInt64
 	case protoreflect.Sfixed32Kind:
-		typeSignature = typeSignatureSfixed32
+		typeSignature = protoTypeSignatureSfixed32
 	case protoreflect.Sfixed64Kind:
-		typeSignature = typeSignatureSfixed64
+		typeSignature = protoTypeSignatureSfixed64
 	case protoreflect.Sint32Kind:
-		typeSignature = typeSignatureSint32
+		typeSignature = protoTypeSignatureSint32
 	case protoreflect.Sint64Kind:
-		typeSignature = typeSignatureSint64
+		typeSignature = protoTypeSignatureSint64
 	case protoreflect.StringKind:
-		typeSignature = typeSignatureString
+		typeSignature = protoTypeSignatureString
 	case protoreflect.Uint32Kind:
-		typeSignature = typeSignatureUint32
+		typeSignature = protoTypeSignatureUint32
 	case protoreflect.Uint64Kind:
-		typeSignature = typeSignatureUint64
+		typeSignature = protoTypeSignatureUint64
 	case protoreflect.MessageKind:
-		typeSignature = string(field.Message().FullName())
+		typeSignature = specification.NewStructTypeSignature(string(field.Message().FullName()))
 	case protoreflect.GroupKind:
 		// This type has been deprecated since the launch of protocol buffers to open source.
 		// There is no real metadata for this in the descriptor, so we just treat as UNKNOWN
 		// since it shouldn't happen in practice anyway.
-		typeSignature = typeSignatureUnknown
+		typeSignature = protoTypeSignatureUnknown
 	case protoreflect.EnumKind:
-		typeSignature = string(field.Enum().FullName())
+		typeSignature = specification.NewEnumTypeSignature(string(field.Enum().FullName()))
 	default:
-		typeSignature = typeSignatureUnknown
+		typeSignature = protoTypeSignatureUnknown
 	}
 
 	if field.Cardinality() == protoreflect.Repeated {
-		typeSignature = fmt.Sprintf("repeated<%s>", typeSignature)
+		typeSignature = specification.NewIterableTypeSignature("repeated", typeSignature)
 	}
 
-	res.TypeSignature = typeSignature
-
-	return res
+	return typeSignature
 }
 
 func convertService(service protoreflect.ServiceDescriptor, docstrings map[string]string) specification.Service {
@@ -161,18 +191,50 @@ func convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.M
 		Name:                string(method.Name()),
 		ID:                  fmt.Sprintf("%s/%s", fullName, "POST"),
 		Endpoints:           []specification.Endpoint{endpoint},
-		ReturnTypeSignature: string(method.Output().FullName()),
+		ReturnTypeSignature: specification.NewStructTypeSignature(string(method.Output().FullName())),
 		Parameters: []specification.Field{
 			{
 				Name:          "request",
-				TypeSignature: string(method.Input().FullName()),
+				TypeSignature: specification.NewStructTypeSignature(string(method.Input().FullName())),
 				Requirement:   "required",
 			},
 		},
-		HTTPMethod: "POST",
+		HTTPMethod: http.MethodPost,
 	}
 
 	if doc, ok := docstrings[fullName]; ok {
+		res.DescriptionInfo.DocString = doc
+		res.DescriptionInfo.Markup = "NONE"
+	}
+
+	return res
+}
+
+func convertEnum(enum protoreflect.EnumDescriptor, docstrings map[string]string) specification.Enum {
+	res := specification.Enum{
+		Name: string(enum.FullName()),
+	}
+
+	if doc, ok := docstrings[string(enum.FullName())]; ok {
+		res.DescriptionInfo.DocString = doc
+		res.DescriptionInfo.Markup = "NONE"
+	}
+
+	for i := 0; i < enum.Values().Len(); i++ {
+		res.Values = append(res.Values, convertEnumValue(enum, enum.Values().Get(i), docstrings))
+	}
+
+	return res
+}
+
+func convertEnumValue(enum protoreflect.EnumDescriptor, value protoreflect.EnumValueDescriptor, docstrings map[string]string) specification.Value {
+	intVal := int(value.Number())
+	res := specification.Value{
+		Name:     string(value.Name()),
+		IntValue: &intVal,
+	}
+
+	if doc, ok := docstrings[fmt.Sprintf("%s/%s", enum.FullName(), value.Name())]; ok {
 		res.DescriptionInfo.DocString = doc
 		res.DescriptionInfo.Markup = "NONE"
 	}
