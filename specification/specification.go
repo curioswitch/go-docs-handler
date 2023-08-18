@@ -11,6 +11,34 @@ func (a Array[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal([]T(a))
 }
 
+type FieldLocation int
+
+const (
+	FieldLocationUnspecified FieldLocation = iota
+	FieldLocationPath
+	FieldLocationHeader
+	FieldLocationQuery
+	FieldLocationBody
+)
+
+func (l FieldLocation) MarshalJSON() ([]byte, error) {
+	var loc string
+	switch l {
+	case FieldLocationUnspecified:
+		loc = "UNSPECIFIED"
+	case FieldLocationPath:
+		loc = "PATH"
+	case FieldLocationHeader:
+		loc = "HEADER"
+	case FieldLocationQuery:
+		loc = "QUERY"
+	case FieldLocationBody:
+		loc = "BODY"
+
+	}
+	return json.Marshal(loc)
+}
+
 type DescriptionInfo struct {
 	DocString string `json:"docString"`
 	Markup    string `json:"markup"`
@@ -27,7 +55,7 @@ type Endpoint struct {
 
 type Field struct {
 	Name            string          `json:"name"`
-	Location        string          `json:"location"`
+	Location        FieldLocation   `json:"location"`
 	Requirement     string          `json:"requirement"`
 	TypeSignature   TypeSignature   `json:"typeSignature"`
 	DescriptionInfo DescriptionInfo `json:"descriptionInfo"`
@@ -45,6 +73,7 @@ type Method struct {
 	ID                      string                   `json:"id"`
 	ReturnTypeSignature     TypeSignature            `json:"returnTypeSignature"`
 	Parameters              Array[Field]             `json:"parameters"`
+	UseParameterAsRoot      bool                     `json:"-"`
 	ExceptionTypeSignatures Array[TypeSignature]     `json:"exceptionTypeSignatures"`
 	Endpoints               Array[Endpoint]          `json:"endpoints"`
 	ExampleHeaders          Array[map[string]string] `json:"exampleHeaders"`

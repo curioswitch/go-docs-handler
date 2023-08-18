@@ -27,9 +27,19 @@ func New(plugins ...Plugin) (http.Handler, error) {
 		return nil, fmt.Errorf("serializing spec: %w", err)
 	}
 
+	schemasJSON, err := json.Marshal(generateJSONSchema(spec))
+	if err != nil {
+		return nil, fmt.Errorf("serializing schemas: %w", err)
+	}
+
 	mux.Handle("/specification.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write(specJSON)
+	}))
+
+	mux.Handle("/schemas.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(schemasJSON)
 	}))
 
 	mux.Handle("/versions.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -199,7 +199,8 @@ func convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.M
 				Requirement:   "required",
 			},
 		},
-		HTTPMethod: http.MethodPost,
+		UseParameterAsRoot: true,
+		HTTPMethod:         http.MethodPost,
 	}
 
 	if doc, ok := docstrings[fullName]; ok {

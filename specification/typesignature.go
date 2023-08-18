@@ -76,6 +76,10 @@ func (s iterableTypeSignature) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.Signature())
 }
 
+func (s iterableTypeSignature) ItemType() TypeSignature {
+	return s.itemType
+}
+
 type mapTypeSignature struct {
 	keyType   TypeSignature
 	valueType TypeSignature
@@ -98,4 +102,12 @@ func (m mapTypeSignature) Signature() string {
 
 func (m mapTypeSignature) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.Signature())
+}
+
+func (m mapTypeSignature) KeyType() TypeSignature {
+	return m.keyType
+}
+
+func (m mapTypeSignature) ValueType() TypeSignature {
+	return m.valueType
 }
