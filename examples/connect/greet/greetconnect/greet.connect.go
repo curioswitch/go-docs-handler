@@ -5,12 +5,13 @@
 package greetconnect
 
 import (
-	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	greet "github.com/curioswitch/go-docs-handler/examples/connect/greet"
 	http "net/http"
 	strings "strings"
+
+	connect "connectrpc.com/connect"
+	greet "github.com/curioswitch/go-docs-handler/examples/connect/greet"
 )
 
 // This is a compile-time assertion to ensure that this generated file and the connect package are

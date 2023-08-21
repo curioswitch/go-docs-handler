@@ -1,8 +1,9 @@
 package protodescriptorset
 
 import (
-	"google.golang.org/protobuf/types/descriptorpb"
 	"strings"
+
+	"google.golang.org/protobuf/types/descriptorpb"
 )
 
 func extractDocStrings(file *descriptorpb.FileDescriptorProto, docstrings map[string]string) {

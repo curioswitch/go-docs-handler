@@ -2,13 +2,14 @@ package protodescriptorset
 
 import (
 	"fmt"
+	"net/http"
+
 	docshandler "github.com/curioswitch/go-docs-handler"
 	"github.com/curioswitch/go-docs-handler/specification"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
-	"net/http"
 )
 
 func NewPlugin(serializedDescriptors []byte) docshandler.Plugin {

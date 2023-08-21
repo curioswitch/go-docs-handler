@@ -1,16 +1,17 @@
 package main
 
 import (
-	"connectrpc.com/connect"
 	"context"
 	_ "embed"
 	"fmt"
-	docshandler "github.com/curioswitch/go-docs-handler"
-	"github.com/curioswitch/go-docs-handler/examples/connect/greet"
-	"github.com/curioswitch/go-docs-handler/examples/connect/greet/greetconnect"
 	"log"
 	"net/http"
 	"protodescriptorset"
+
+	"connectrpc.com/connect"
+	docshandler "github.com/curioswitch/go-docs-handler"
+	"github.com/curioswitch/go-docs-handler/examples/connect/greet"
+	"github.com/curioswitch/go-docs-handler/examples/connect/greet/greetconnect"
 )
 
 //go:embed greet/descriptors.pb

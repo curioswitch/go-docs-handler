@@ -2,6 +2,7 @@ package protodescriptorset
 
 import (
 	"encoding/json"
+
 	"github.com/curioswitch/go-docs-handler/specification"
 )
 

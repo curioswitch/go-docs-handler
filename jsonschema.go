@@ -178,7 +178,8 @@ func (g *jSONSchemaGenerator) generateArrayItems(field specification.Field, visi
 }
 
 func (g *jSONSchemaGenerator) generateStructProperties(
-	field specification.Field, visited map[string]string, path string) (map[string]jsonSchemaField, bool) {
+	field specification.Field, visited map[string]string, path string,
+) (map[string]jsonSchemaField, bool) {
 	if s, ok := g.typeNameToStruct[field.TypeSignature.Signature()]; ok {
 		return g.generateProperties(s.Fields, visited, path), true
 	}
