@@ -18,7 +18,7 @@ func Format() error {
 		return err
 	}
 	if err := sh.RunV("go", "run", fmt.Sprintf("github.com/rinchsan/gosimports/cmd/gosimports@%s", verGosImports), "-w",
-		"-local", "github.com/curiostack/go-docs-handler",
+		"-local", "github.com/curioswitch/go-docs-handler",
 		"."); err != nil {
 		return nil
 	}

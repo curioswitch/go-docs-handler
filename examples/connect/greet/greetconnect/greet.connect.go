@@ -11,6 +11,7 @@ import (
 	strings "strings"
 
 	connect "connectrpc.com/connect"
+
 	greet "github.com/curioswitch/go-docs-handler/examples/connect/greet"
 )
 

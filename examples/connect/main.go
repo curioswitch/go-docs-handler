@@ -9,6 +9,7 @@ import (
 	"protodescriptorset"
 
 	"connectrpc.com/connect"
+
 	docshandler "github.com/curioswitch/go-docs-handler"
 	"github.com/curioswitch/go-docs-handler/examples/connect/greet"
 	"github.com/curioswitch/go-docs-handler/examples/connect/greet/greetconnect"
