@@ -1,0 +1,546 @@
+{
+  "services" : [ {
+    "name" : "armeria.grpc.testing.TestService",
+    "methods" : [ {
+      "id" : "armeria.grpc.testing.TestService/UnaryCallWithAllDifferentParameterTypes/POST",
+      "name" : "UnaryCallWithAllDifferentParameterTypes",
+      "returnTypeSignature" : "armeria.grpc.testing.ExtendedTestMessage",
+      "parameters" : [ {
+        "name" : "request",
+        "location" : "UNSPECIFIED",
+        "requirement" : "REQUIRED",
+        "typeSignature" : "armeria.grpc.testing.ExtendedTestMessage",
+        "descriptionInfo" : {
+          "docString" : "",
+          "markup" : "NONE"
+        }
+      } ],
+      "exceptionTypeSignatures" : [ ],
+      "endpoints" : [ {
+        "hostnamePattern" : "*",
+        "pathMapping" : "/test/armeria.grpc.testing.TestService/UnaryCallWithAllDifferentParameterTypes",
+        "availableMimeTypes" : [ "application/grpc+json", "application/grpc+proto", "application/grpc-web+json", "application/grpc-web+proto", "application/grpc-web-text+proto" ]
+      } ],
+      "exampleHeaders" : [ ],
+      "exampleRequests" : [ "{\n  \"bool\": false,\n  \"int32\": 0,\n  \"int64\": \"0\",\n  \"uint32\": 0,\n  \"uint64\": \"0\",\n  \"sint32\": 0,\n  \"sint64\": \"0\",\n  \"fixed32\": 0,\n  \"fixed64\": \"0\",\n  \"float\": 0.0,\n  \"double\": 0.0,\n  \"string\": \"\",\n  \"bytes\": \"\",\n  \"testEnum\": \"ZERO\",\n  \"strings\": [],\n  \"nesteds\": [],\n  \"selves\": [],\n  \"stringToIntMap\": {\n  },\n  \"intToStringMap\": {\n  },\n  \"messageMap\": {\n  },\n  \"selfMap\": {\n  }\n}" ],
+      "examplePaths" : [ ],
+      "exampleQueries" : [ ],
+      "httpMethod" : "POST",
+      "descriptionInfo" : {
+        "docString" : " This method's parameter message contains all different types of parameters\n as well as the response type contains all different types of parameters.\n Can be used to check any kind of serialization issues.\n",
+        "markup" : "NONE"
+      }
+    } ],
+    "exampleHeaders" : [ ],
+    "descriptionInfo" : {
+      "docString" : " A simple service to test the various types of RPCs and experiment with\n performance with various types of payload.\n",
+      "markup" : "NONE"
+    }
+  } ],
+  "enums" : [ {
+    "name" : "armeria.grpc.testing.TestEnum",
+    "values" : [ {
+      "name" : "ZERO",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      },
+      "intValue" : 0
+    }, {
+      "name" : "ONE",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      },
+      "intValue" : 1
+    }, {
+      "name" : "TWO",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      },
+      "intValue" : 2
+    } ],
+    "descriptionInfo" : {
+      "docString" : "",
+      "markup" : "NONE"
+    }
+  } ],
+  "structs" : [ {
+    "name" : "armeria.grpc.testing.ExtendedTestMessage",
+    "fields" : [ {
+      "name" : "bool",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "bool",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "int32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "int32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "int64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "int64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "uint32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "uint32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "uint64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "uint64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "sint32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "sint32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "sint64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "sint64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "fixed32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "fixed32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "fixed64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "fixed64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "float",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "float",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "double",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "double",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "string",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "string",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "bytes",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "bytes",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "test_enum",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.TestEnum",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "nested",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.ExtendedTestMessage.Nested",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "complex_other_message",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.TestMessage",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "strings",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "repeated<string>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "nesteds",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "repeated<armeria.grpc.testing.ExtendedTestMessage.Nested>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "selves",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "repeated<armeria.grpc.testing.ExtendedTestMessage>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "string_to_int_map",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "map<string, int32>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "int_to_string_map",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "map<int32, string>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "message_map",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "map<string, armeria.grpc.testing.ExtendedTestMessage.Nested>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "self_map",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "map<string, armeria.grpc.testing.ExtendedTestMessage>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "self",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.ExtendedTestMessage",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "nested_self",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.ExtendedTestMessage.NestedSelf",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "nested_nested_self",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.ExtendedTestMessage.NestedNestedSelf",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    } ],
+    "descriptionInfo" : {
+      "docString" : "",
+      "markup" : "NONE"
+    }
+  }, {
+    "name" : "armeria.grpc.testing.ExtendedTestMessage.Nested",
+    "fields" : [ {
+      "name" : "string",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "string",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    } ],
+    "descriptionInfo" : {
+      "docString" : "",
+      "markup" : "NONE"
+    }
+  }, {
+    "name" : "armeria.grpc.testing.ExtendedTestMessage.NestedNestedSelf",
+    "fields" : [ {
+      "name" : "nested_self",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.ExtendedTestMessage.NestedSelf",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    } ],
+    "descriptionInfo" : {
+      "docString" : "",
+      "markup" : "NONE"
+    }
+  }, {
+    "name" : "armeria.grpc.testing.ExtendedTestMessage.NestedSelf",
+    "fields" : [ {
+      "name" : "self",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.ExtendedTestMessage",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    } ],
+    "descriptionInfo" : {
+      "docString" : "",
+      "markup" : "NONE"
+    }
+  }, {
+    "name" : "armeria.grpc.testing.TestMessage",
+    "fields" : [ {
+      "name" : "bool",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "bool",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "int32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "int32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "int64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "int64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "uint32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "uint32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "uint64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "uint64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "sint32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "sint32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "sint64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "sint64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "fixed32",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "fixed32",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "fixed64",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "fixed64",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "float",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "float",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "double",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "double",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "string",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "string",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "bytes",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "bytes",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "test_enum",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.TestEnum",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "nested",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.TestMessage.Nested",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "strings",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "repeated<string>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "map",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "map<string, int32>",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    }, {
+      "name" : "self",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "armeria.grpc.testing.TestMessage",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    } ],
+    "descriptionInfo" : {
+      "docString" : "",
+      "markup" : "NONE"
+    }
+  }, {
+    "name" : "armeria.grpc.testing.TestMessage.Nested",
+    "fields" : [ {
+      "name" : "string",
+      "location" : "UNSPECIFIED",
+      "requirement" : "OPTIONAL",
+      "typeSignature" : "string",
+      "descriptionInfo" : {
+        "docString" : "",
+        "markup" : "NONE"
+      }
+    } ],
+    "descriptionInfo" : {
+      "docString" : "",
+      "markup" : "NONE"
+    }
+  } ],
+  "exceptions" : [ ],
+  "exampleHeaders" : [ ]
+}

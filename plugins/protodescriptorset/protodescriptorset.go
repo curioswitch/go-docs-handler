@@ -59,8 +59,8 @@ func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]st
 
 	if doc, ok := docstrings[string(msg.FullName())]; ok {
 		res.DescriptionInfo.DocString = doc
-		res.DescriptionInfo.Markup = "NONE"
 	}
+	res.DescriptionInfo.Markup = "NONE"
 
 	for i := 0; i < msg.Fields().Len(); i++ {
 		res.Fields = append(res.Fields, convertField(msg, msg.Fields().Get(i), docstrings))
@@ -88,15 +88,15 @@ func convertField(msg protoreflect.MessageDescriptor, field protoreflect.FieldDe
 	}
 
 	if msg.RequiredNumbers().Has(field.Number()) {
-		res.Requirement = "required"
+		res.Requirement = "REQUIRED"
 	} else {
-		res.Requirement = "optional"
+		res.Requirement = "OPTIONAL"
 	}
 
 	if doc, ok := docstrings[fmt.Sprintf("%s/%s", field.ContainingMessage().FullName(), field.Name())]; ok {
 		res.DescriptionInfo.DocString = doc
-		res.DescriptionInfo.Markup = "NONE"
 	}
+	res.DescriptionInfo.Markup = "NONE"
 
 	res.TypeSignature = fieldTypeSignature(field)
 
@@ -170,8 +170,8 @@ func convertService(service protoreflect.ServiceDescriptor, docstrings map[strin
 
 	if doc, ok := docstrings[string(service.FullName())]; ok {
 		res.DescriptionInfo.DocString = doc
-		res.DescriptionInfo.Markup = "NONE"
 	}
+	res.DescriptionInfo.Markup = "NONE"
 
 	for i := 0; i < service.Methods().Len(); i++ {
 		res.Methods = append(res.Methods, convertMethod(service, service.Methods().Get(i), docstrings))
@@ -186,6 +186,7 @@ func convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.M
 	endpoint := specification.Endpoint{
 		DefaultMimeType:    mimeTypeGRPC,
 		AvailableMimeTypes: []string{mimeTypeGRPC, mimeTypeConnectProto, mimeTypeConnectJSON},
+		HostnamePattern:    "*",
 		PathMapping:        "/" + fullName,
 	}
 
@@ -198,7 +199,10 @@ func convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.M
 			{
 				Name:          "request",
 				TypeSignature: specification.NewStructTypeSignature(string(method.Input().FullName())),
-				Requirement:   "required",
+				Requirement:   "REQUIRED",
+				DescriptionInfo: specification.DescriptionInfo{
+					Markup: "NONE",
+				},
 			},
 		},
 		UseParameterAsRoot: true,
@@ -207,8 +211,8 @@ func convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.M
 
 	if doc, ok := docstrings[fullName]; ok {
 		res.DescriptionInfo.DocString = doc
-		res.DescriptionInfo.Markup = "NONE"
 	}
+	res.DescriptionInfo.Markup = "NONE"
 
 	return res
 }
@@ -220,8 +224,8 @@ func convertEnum(enum protoreflect.EnumDescriptor, docstrings map[string]string)
 
 	if doc, ok := docstrings[string(enum.FullName())]; ok {
 		res.DescriptionInfo.DocString = doc
-		res.DescriptionInfo.Markup = "NONE"
 	}
+	res.DescriptionInfo.Markup = "NONE"
 
 	for i := 0; i < enum.Values().Len(); i++ {
 		res.Values = append(res.Values, convertEnumValue(enum, enum.Values().Get(i), docstrings))
@@ -239,8 +243,8 @@ func convertEnumValue(enum protoreflect.EnumDescriptor, value protoreflect.EnumV
 
 	if doc, ok := docstrings[fmt.Sprintf("%s/%s", enum.FullName(), value.Name())]; ok {
 		res.DescriptionInfo.DocString = doc
-		res.DescriptionInfo.Markup = "NONE"
 	}
+	res.DescriptionInfo.Markup = "NONE"
 
 	return res
 }
