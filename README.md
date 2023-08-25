@@ -72,7 +72,7 @@ func main() {
 	mux := http.NewServeMux()
 	
 	
-	docsHandler, err := docshandler.New(protodocs.NewPlugin(server))
+	docsHandler, err := docshandler.New(grpcdocs.NewPlugin(server))
 	if err != nil {
 		panic(err)
 	}
