@@ -1,26 +1,36 @@
 package protodescriptorset
 
 import (
+	"bytes"
 	"fmt"
+	"google.golang.org/protobuf/types/dynamicpb"
 	"net/http"
-
-	"github.com/golang/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protodesc"
-	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/types/descriptorpb"
+	"sort"
 
 	docshandler "github.com/curioswitch/go-docs-handler"
 	"github.com/curioswitch/go-docs-handler/specification"
+	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/reflect/protodesc"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
+	"google.golang.org/protobuf/types/descriptorpb"
 )
 
-func NewPlugin(serializedDescriptors []byte) docshandler.Plugin {
+func NewPlugin(serializedDescriptors []byte, opts ...Option) docshandler.Plugin {
+	c := newConfig()
+	for _, opt := range opts {
+		opt(c)
+	}
 	return &plugin{
 		serializedDescriptors: serializedDescriptors,
+		config:                c,
 	}
 }
 
 type plugin struct {
 	serializedDescriptors []byte
+	config                *config
 }
 
 func (p *plugin) GenerateSpecification() (*specification.Specification, error) {
@@ -35,7 +45,10 @@ func (p *plugin) GenerateSpecification() (*specification.Specification, error) {
 
 	for _, file := range descriptors.GetFile() {
 		extractDocStrings(file, docstrings)
-		fileDesc, _ := protodesc.NewFile(file, nil)
+		fileDesc, err := protodesc.NewFile(file, protoregistry.GlobalFiles)
+		if err != nil {
+			return nil, fmt.Errorf("reading file descriptor: %w", err)
+		}
 		for i := 0; i < fileDesc.Messages().Len(); i++ {
 			structs, enums := convertMessage(fileDesc.Messages().Get(i), docstrings)
 			spec.Structs = append(spec.Structs, structs...)
@@ -45,8 +58,24 @@ func (p *plugin) GenerateSpecification() (*specification.Specification, error) {
 			spec.Enums = append(spec.Enums, convertEnum(fileDesc.Enums().Get(i), docstrings))
 		}
 		for i := 0; i < fileDesc.Services().Len(); i++ {
-			spec.Services = append(spec.Services, convertService(fileDesc.Services().Get(i), docstrings))
+			s, err := p.convertService(fileDesc.Services().Get(i), docstrings)
+			if err != nil {
+				return nil, err
+			}
+			spec.Services = append(spec.Services, s)
 		}
+
+		sort.SliceStable(spec.Enums, func(i, j int) bool {
+			return spec.Enums[i].Name < spec.Enums[j].Name
+		})
+
+		sort.SliceStable(spec.Services, func(i, j int) bool {
+			return spec.Services[i].Name < spec.Services[j].Name
+		})
+
+		sort.SliceStable(spec.Structs, func(i, j int) bool {
+			return spec.Structs[i].Name < spec.Structs[j].Name
+		})
 	}
 
 	return spec, nil
@@ -74,6 +103,10 @@ func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]st
 	}
 
 	for i := 0; i < msg.Messages().Len(); i++ {
+		m := msg.Messages().Get(i)
+		if m.IsMapEntry() {
+			continue
+		}
 		s, e := convertMessage(msg.Messages().Get(i), docstrings)
 		structs = append(structs, s...)
 		enums = append(enums, e...)
@@ -163,7 +196,7 @@ func fieldTypeSignature(field protoreflect.FieldDescriptor) specification.TypeSi
 	return typeSignature
 }
 
-func convertService(service protoreflect.ServiceDescriptor, docstrings map[string]string) specification.Service {
+func (p *plugin) convertService(service protoreflect.ServiceDescriptor, docstrings map[string]string) (specification.Service, error) {
 	res := specification.Service{
 		Name: string(service.FullName()),
 	}
@@ -174,18 +207,22 @@ func convertService(service protoreflect.ServiceDescriptor, docstrings map[strin
 	res.DescriptionInfo.Markup = "NONE"
 
 	for i := 0; i < service.Methods().Len(); i++ {
-		res.Methods = append(res.Methods, convertMethod(service, service.Methods().Get(i), docstrings))
+		m, err := p.convertMethod(service, service.Methods().Get(i), docstrings)
+		if err != nil {
+			return specification.Service{}, err
+		}
+		res.Methods = append(res.Methods, m)
 	}
 
-	return res
+	return res, nil
 }
 
-func convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.MethodDescriptor, docstrings map[string]string) specification.Method {
+func (p *plugin) convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.MethodDescriptor, docstrings map[string]string) (specification.Method, error) {
 	fullName := fmt.Sprintf("%s/%s", service.FullName(), method.Name())
 
 	endpoint := specification.Endpoint{
-		DefaultMimeType:    mimeTypeGRPC,
-		AvailableMimeTypes: []string{mimeTypeGRPC, mimeTypeConnectProto, mimeTypeConnectJSON},
+		// Add mime types supported by Connect which should be most usage of this plugin.
+		AvailableMimeTypes: []string{mimeTypeGRPCJSON, mimeTypeGRPCProto, mimeTypeGRPCWebJSON, mimeTypeGRPCWebProto, mimeTypeConnectJSON, mimeTypeConnectProto},
 		HostnamePattern:    "*",
 		PathMapping:        "/" + fullName,
 	}
@@ -209,12 +246,32 @@ func convertMethod(service protoreflect.ServiceDescriptor, method protoreflect.M
 		HTTPMethod:         http.MethodPost,
 	}
 
+	pjson := protojson.MarshalOptions{Multiline: true, EmitUnpopulated: true}
+
+	if reqs, ok := p.config.exampleRequests[fullName]; ok {
+		for _, req := range reqs {
+			reqJSON, err := pjson.Marshal(req)
+			if err != nil {
+				return specification.Method{}, fmt.Errorf("protodescriptorset: marshaling example request: %w", err)
+			}
+			res.ExampleRequests = append(res.ExampleRequests, string(reqJSON))
+		}
+	}
+
+	prototypeJSON, err := pjson.Marshal(dynamicpb.NewMessage(method.Input()))
+	if err != nil {
+		return specification.Method{}, fmt.Errorf("protodescriptorset: marshaling prototype request: %w", err)
+	}
+	if !bytes.Equal(prototypeJSON, []byte("{\n}")) && !bytes.Equal(prototypeJSON, []byte("{}")) {
+		res.ExampleRequests = append(res.ExampleRequests, string(prototypeJSON))
+	}
+
 	if doc, ok := docstrings[fullName]; ok {
 		res.DescriptionInfo.DocString = doc
 	}
 	res.DescriptionInfo.Markup = "NONE"
 
-	return res
+	return res, nil
 }
 
 func convertEnum(enum protoreflect.EnumDescriptor, docstrings map[string]string) specification.Enum {

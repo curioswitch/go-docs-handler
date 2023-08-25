@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"protodescriptorset"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/proto"
 
 	docshandler "github.com/curioswitch/go-docs-handler"
 	"github.com/curioswitch/go-docs-handler/examples/connect/greet"
 	"github.com/curioswitch/go-docs-handler/examples/connect/greet/greetconnect"
+	"github.com/curioswitch/go-docs-handler/plugins/protodescriptorset"
 )
 
 //go:embed greet/descriptors.pb
@@ -23,7 +24,33 @@ func main() {
 
 	mux.Handle(greetconnect.NewGreetServiceHandler(&greetService{}))
 
-	docsHandler, err := docshandler.New(protodescriptorset.NewPlugin(greetDescriptors))
+	docsHandler, err := docshandler.New(protodescriptorset.NewPlugin(greetDescriptors,
+		protodescriptorset.WithExampleRequests(greetconnect.GreetServiceGreetProcedure[1:], []proto.Message{
+			&greet.GreetingRequest{
+				Greeting: &greet.Greeting{
+					Name: &greet.Greeting_Nickname{
+						Nickname: "Choko",
+					},
+				},
+			},
+			&greet.GreetingRequest{
+				Greeting: &greet.Greeting{
+					Name: &greet.Greeting_FullName_{
+						FullName: &greet.Greeting_FullName{
+							FirstName: "Choko",
+							LastName:  "Switch",
+						},
+					},
+				},
+			},
+			&greet.GreetingRequest{
+				Greeting: &greet.Greeting{
+					Name: &greet.Greeting_KnownName_{
+						KnownName: greet.Greeting_BOB,
+					},
+				},
+			},
+		})))
 	if err != nil {
 		log.Fatal(err)
 	}

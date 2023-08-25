@@ -58,7 +58,7 @@ func New(plugins ...Plugin) (http.Handler, error) {
 	filesHandler := http.FileServer(http.FS(docsClientFS))
 
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "" {
+		if r.URL.Path == "/" {
 			r.URL.Path = "index.html"
 		}
 		if r.URL.Path != "/assets/favicon.png" && !strings.HasSuffix(r.URL.Path, ".ttf") {

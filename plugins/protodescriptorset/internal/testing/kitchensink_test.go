@@ -3,20 +3,25 @@ package testing
 import (
 	_ "embed"
 	"encoding/json"
-	"github.com/curioswitch/go-docs-handler/plugins/protodescriptorset"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/curioswitch/go-docs-handler/plugins/protodescriptorset"
 )
 
 //go:embed test.descriptors.pb
 var testDescriptors []byte
 
+// Generated from modified GrpcDocServiceJsonSchemaTest
+//   - Mapped service to root
+//   - Removed grpc-web-text mime type not supported by Connect
+//   - Manually reformatted example request to follow significantly different protobuf-go
+//
 //go:embed armeria-spec.json
 var armeriaSpecJSON string
 
-func TestAllParameterTypes(t *testing.T) {
-	t.Skip("WIP")
-
+func TestAllParameterTypesMatchesArmeria(t *testing.T) {
 	p := protodescriptorset.NewPlugin(testDescriptors)
 	spec, err := p.GenerateSpecification()
 	if err != nil {

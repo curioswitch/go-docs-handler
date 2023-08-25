@@ -18,11 +18,11 @@
       "exceptionTypeSignatures" : [ ],
       "endpoints" : [ {
         "hostnamePattern" : "*",
-        "pathMapping" : "/test/armeria.grpc.testing.TestService/UnaryCallWithAllDifferentParameterTypes",
-        "availableMimeTypes" : [ "application/grpc+json", "application/grpc+proto", "application/grpc-web+json", "application/grpc-web+proto", "application/grpc-web-text+proto" ]
+        "pathMapping" : "/armeria.grpc.testing.TestService/UnaryCallWithAllDifferentParameterTypes",
+        "availableMimeTypes" : [ "application/grpc+json", "application/grpc+proto", "application/grpc-web+json", "application/grpc-web+proto", "application/json; charset=utf-8; protocol=gRPC", "application/protobuf; protocol=gRPC" ]
       } ],
       "exampleHeaders" : [ ],
-      "exampleRequests" : [ "{\n  \"bool\": false,\n  \"int32\": 0,\n  \"int64\": \"0\",\n  \"uint32\": 0,\n  \"uint64\": \"0\",\n  \"sint32\": 0,\n  \"sint64\": \"0\",\n  \"fixed32\": 0,\n  \"fixed64\": \"0\",\n  \"float\": 0.0,\n  \"double\": 0.0,\n  \"string\": \"\",\n  \"bytes\": \"\",\n  \"testEnum\": \"ZERO\",\n  \"strings\": [],\n  \"nesteds\": [],\n  \"selves\": [],\n  \"stringToIntMap\": {\n  },\n  \"intToStringMap\": {\n  },\n  \"messageMap\": {\n  },\n  \"selfMap\": {\n  }\n}" ],
+      "exampleRequests" : [ "{\n  \"bool\":  false,\n  \"int32\":  0,\n  \"int64\":  \"0\",\n  \"uint32\":  0,\n  \"uint64\":  \"0\",\n  \"sint32\":  0,\n  \"sint64\":  \"0\",\n  \"fixed32\":  0,\n  \"fixed64\":  \"0\",\n  \"float\":  0,\n  \"double\":  0,\n  \"string\":  \"\",\n  \"bytes\":  \"\",\n  \"testEnum\":  \"ZERO\",\n  \"nested\":  null,\n  \"complexOtherMessage\":  null,\n  \"strings\":  [],\n  \"nesteds\":  [],\n  \"selves\":  [],\n  \"stringToIntMap\":  {},\n  \"intToStringMap\":  {},\n  \"messageMap\":  {},\n  \"selfMap\":  {},\n  \"self\":  null,\n  \"nestedSelf\":  null,\n  \"nestedNestedSelf\":  null\n}" ],
       "examplePaths" : [ ],
       "exampleQueries" : [ ],
       "httpMethod" : "POST",

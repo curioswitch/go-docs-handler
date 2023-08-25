@@ -47,7 +47,7 @@ type DescriptionInfo struct {
 type Endpoint struct {
 	HostnamePattern    string        `json:"hostnamePattern"`
 	PathMapping        string        `json:"pathMapping"`
-	DefaultMimeType    string        `json:"defaultMimeType"`
+	DefaultMimeType    string        `json:"defaultMimeType,omitempty"`
 	AvailableMimeTypes Array[string] `json:"availableMimeTypes"`
 	RegexPathPrefix    string        `json:"regexPathPrefix,omitempty"`
 	Fragment           string        `json:"fragment,omitempty"`
