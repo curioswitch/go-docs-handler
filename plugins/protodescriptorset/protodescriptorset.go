@@ -3,18 +3,19 @@ package protodescriptorset
 import (
 	"bytes"
 	"fmt"
-	"google.golang.org/protobuf/types/dynamicpb"
 	"net/http"
 	"sort"
 
-	docshandler "github.com/curioswitch/go-docs-handler"
-	"github.com/curioswitch/go-docs-handler/specification"
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
+	"google.golang.org/protobuf/types/dynamicpb"
+
+	docshandler "github.com/curioswitch/go-docs-handler"
+	"github.com/curioswitch/go-docs-handler/specification"
 )
 
 func NewPlugin(serializedDescriptors []byte, opts ...Option) docshandler.Plugin {
@@ -246,7 +247,7 @@ func (p *plugin) convertMethod(service protoreflect.ServiceDescriptor, method pr
 		HTTPMethod:         http.MethodPost,
 	}
 
-	pjson := protojson.MarshalOptions{Multiline: true, EmitUnpopulated: true}
+	pjson := protojson.MarshalOptions{Multiline: true, EmitUnpopulated: true, UseProtoNames: true}
 
 	if reqs, ok := p.config.exampleRequests[fullName]; ok {
 		for _, req := range reqs {

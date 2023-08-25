@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/kinbiko/jsonassert"
 
 	"github.com/curioswitch/go-docs-handler/plugins/protodescriptorset"
 )
@@ -16,7 +16,7 @@ var testDescriptors []byte
 // Generated from modified GrpcDocServiceJsonSchemaTest
 //   - Mapped service to root
 //   - Removed grpc-web-text mime type not supported by Connect
-//   - Manually reformatted example request to follow significantly different protobuf-go
+//   - Example request replaced with presence check because JSON strings in Go are not stable
 //
 //go:embed armeria-spec.json
 var armeriaSpecJSON string
@@ -32,5 +32,6 @@ func TestAllParameterTypesMatchesArmeria(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.JSONEq(t, armeriaSpecJSON, string(specJSON))
+	ja := jsonassert.New(t)
+	ja.Assertf(string(specJSON), armeriaSpecJSON)
 }

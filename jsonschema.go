@@ -1,16 +1,35 @@
 package docshandler
 
-import "github.com/curioswitch/go-docs-handler/specification"
+import (
+	"encoding/json"
+
+	"github.com/curioswitch/go-docs-handler/specification"
+)
+
+type additionalPropertiesSchema struct {
+	field jsonSchemaField
+}
+
+func (s additionalPropertiesSchema) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.field)
+}
+
+type additionalPropertiesBool struct {
+	value bool
+}
+
+func (s additionalPropertiesBool) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.value)
+}
 
 type jsonSchemaField struct {
-	Description                string                     `json:"description"`
-	Ref                        string                     `json:"$ref,omitempty"`
-	Type                       string                     `json:"type,omitempty"`
-	Enum                       []string                   `json:"enum,omitempty"`
-	Properties                 map[string]jsonSchemaField `json:"properties,omitempty"`
-	AdditionalPropertiesSchema *jsonSchemaField           `json:"additionalProperties,omitempty"`
-	AdditionalPropertiesBool   *bool                      `json:"additionalProperties,omitempty"`
-	Items                      *jsonSchemaField           `json:"items,omitempty"`
+	Description          string                     `json:"description"`
+	Ref                  string                     `json:"$ref,omitempty"`
+	Type                 string                     `json:"type,omitempty"`
+	Enum                 []string                   `json:"enum,omitempty"`
+	Properties           map[string]jsonSchemaField `json:"properties,omitempty"`
+	AdditionalProperties json.Marshaler             `json:"additionalProperties,omitempty"`
+	Items                *jsonSchemaField           `json:"items,omitempty"`
 }
 
 type jsonSchema struct {
@@ -113,22 +132,20 @@ func (g *jSONSchemaGenerator) generateField(field specification.Field, visited m
 	switch {
 	case field.TypeSignature.Type() == specification.TypeSignatureTypeMap:
 		aProps := g.generateMapAdditionalProperties(field, visited, currentPath)
-		schema.AdditionalPropertiesSchema = &aProps
+		schema.AdditionalProperties = additionalPropertiesSchema{field: aProps}
 	case field.TypeSignature.Type() == specification.TypeSignatureTypeIterable:
 		items := g.generateArrayItems(field, visited, currentPath)
 		schema.Items = &items
 	case schema.Type == "object":
 		props, found := g.generateStructProperties(field, visited, currentPath)
 		if found {
-			allowAdditionalProperties := false
-			schema.AdditionalPropertiesBool = &allowAdditionalProperties
+			schema.AdditionalProperties = additionalPropertiesBool{value: false}
 			schema.Properties = props
 		} else {
 			// When we have a struct but the definition cannot not be found, we go ahead
 			// and allow all additional properties since it may still be more useful than
 			// being completely unusable.
-			allowAdditionalProperties := true
-			schema.AdditionalPropertiesBool = &allowAdditionalProperties
+			schema.AdditionalProperties = additionalPropertiesBool{value: true}
 		}
 	}
 
