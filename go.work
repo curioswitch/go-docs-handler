@@ -5,6 +5,6 @@ use (
 	examples/connect
 	examples/grpc
 	magefiles
-	./plugins/grpcdocs
+	./plugins/grpc
 	./plugins/proto
 )

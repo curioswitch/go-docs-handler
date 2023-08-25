@@ -1,4 +1,4 @@
-package grpcdocs
+package grpc
 
 import "google.golang.org/protobuf/proto"
 

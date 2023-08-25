@@ -1,4 +1,4 @@
-package grpcdocs
+package grpc
 
 import (
 	"bytes"
