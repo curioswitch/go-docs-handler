@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/curioswitch/go-docs-handler v0.0.0-20230824053343-938cee917c6d
-	github.com/kinbiko/jsonassert v1.1.1
 	google.golang.org/protobuf v1.31.0
 )
 

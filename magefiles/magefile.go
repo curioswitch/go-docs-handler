@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/mod/modfile"
 	"os"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+	"golang.org/x/mod/modfile"
 )
 
 var projects = getProjects()

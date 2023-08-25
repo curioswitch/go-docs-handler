@@ -27,6 +27,10 @@ import (
 
 var errNoServices = errors.New("gRPC server does not expose any services")
 
+// NewPlugin returns a docshandler.Plugin for generating documentation for
+// a grpc.Server. See Option for configuration settings for this plugin.
+// Note that currently when using this plugin, the docs handler must be served at the root,
+// not at a prefix such as "/docs/".
 func NewPlugin(s *grpc.Server, opts ...Option) docshandler.Plugin {
 	config := newConfig()
 	for _, opt := range opts {
