@@ -3,30 +3,31 @@ package main
 import (
 	"context"
 	_ "embed"
+	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 
-	"connectrpc.com/connect"
+	"google.golang.org/grpc"
 
 	docshandler "github.com/curioswitch/go-docs-handler"
-	"github.com/curioswitch/go-docs-handler/examples/connect/greet"
-	"github.com/curioswitch/go-docs-handler/examples/connect/greet/greetconnect"
-	protodocs "github.com/curioswitch/go-docs-handler/plugins/proto"
+	"github.com/curioswitch/go-docs-handler/examples/grpc/greet"
+	grpcdocs "github.com/curioswitch/go-docs-handler/plugins/grpc"
 )
 
 //go:embed greet/descriptors.pb
 var greetDescriptors []byte
 
 func main() {
-	mux := http.NewServeMux()
+	server := grpc.NewServer()
+	defer server.Stop()
 
-	mux.Handle(greetconnect.NewGreetServiceHandler(&greetService{}))
+	greet.RegisterGreetServiceServer(server, service{})
 
-	docsHandler, err := docshandler.New(protodocs.NewPlugin(
-		greetconnect.GreetServiceName,
-		protodocs.WithSerializedDescriptors(greetDescriptors),
-		protodocs.WithExampleRequests(greetconnect.GreetServiceGreetProcedure,
+	docsHandler, err := docshandler.New(grpcdocs.NewPlugin(server,
+		grpcdocs.WithSerializedDescriptors(greetDescriptors),
+		grpcdocs.WithExampleRequests("greet.GreetService/Greet",
 			&greet.GreetingRequest{
 				Greeting: &greet.Greeting{
 					Name: &greet.Greeting_Nickname{
@@ -54,17 +55,29 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	mux.Handle("/docs/", http.StripPrefix("/docs", docsHandler))
 
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	go func() {
+		if err := http.ListenAndServe(":8081", docsHandler); !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
+	}()
+
+	list, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := server.Serve(list); err != nil {
+		log.Fatal(err)
+	}
 }
 
-type greetService struct{}
+type service struct {
+	greet.UnimplementedGreetServiceServer
+}
 
-func (s *greetService) Greet(ctx context.Context, req *connect.Request[greet.GreetingRequest]) (*connect.Response[greet.GreetingResponse], error) {
-	g := req.Msg.GetGreeting()
-
+func (service) Greet(ctx context.Context, req *greet.GreetingRequest) (*greet.GreetingResponse, error) {
 	res := "Who are you?"
+	g := req.Greeting
 	switch n := g.GetName().(type) {
 	case *greet.Greeting_Nickname:
 		res = fmt.Sprintf("Hello there, %s", n.Nickname)
@@ -79,8 +92,7 @@ func (s *greetService) Greet(ctx context.Context, req *connect.Request[greet.Gre
 		}
 	}
 
-	resp := &greet.GreetingResponse{
+	return &greet.GreetingResponse{
 		Result: res,
-	}
-	return connect.NewResponse(resp), nil
+	}, nil
 }

@@ -7,8 +7,6 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-// Test runs unit tests - by default, it uses wazero; set RE2_TEST_MODE=cgo or RE2_TEST_MODE=tinygo to use either, or
-// RE2_TEST_EXHAUSTIVE=1 to enable exhaustive tests that may take a long time.
 func Test() error {
 	return sh.RunV("go", "test", "-v", "./...")
 }

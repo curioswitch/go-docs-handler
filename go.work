@@ -3,6 +3,8 @@ go 1.20
 use (
 	.
 	examples/connect
+	examples/grpc
 	magefiles
-	plugins/protodescriptorset
+	./plugins/grpcdocs
+	./plugins/proto
 )

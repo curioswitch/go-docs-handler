@@ -1,4 +1,4 @@
-package protodescriptorset
+package protodocs
 
 const (
 	mimeTypeGRPCJSON     = "application/grpc+json"

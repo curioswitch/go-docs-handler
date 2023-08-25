@@ -1,4 +1,4 @@
-module github.com/curioswitch/go-docs-handler/plugins/protodescriptorset
+module github.com/curioswitch/go-docs-handler/plugins/proto
 
 go 1.19
 

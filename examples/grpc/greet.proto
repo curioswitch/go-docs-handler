@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package greet;
+option go_package="github.com/curioswitch/go-docs-handler/examples/grpc/greet";
+
+// A greeting to a particular person.
+message Greeting {
+  // A name that is known so we can transmit it more efficiently.
+  enum KnownName {
+    // An unknown known name. Wait, what does that mean?
+    UNKNOWN = 0;
+    // Alice's name.
+    ALICE = 1;
+    // Bob's name
+    BOB = 2;
+  }
+
+  // A full name of a person.
+  message FullName {
+    // The first name.
+    string first_name = 1;
+    // The last name.
+    string last_name = 2;
+  }
+
+  // A name that can be used to greet a person.
+  oneof name {
+    // A simple nickname.
+    string nickname = 1;
+
+    // A full name.
+    FullName full_name = 2;
+
+    // A well known name.
+    KnownName known_name = 3;
+  }
+}
+
+// A request to perform a greeting.
+message GreetingRequest {
+  // The greeting to perform.
+  Greeting greeting = 1;
+}
+
+// A response to a greeting.
+message GreetingResponse {
+  // The result of the greeting.
+  string result = 1;
+}
+
+// The greeting service definition.
+service GreetService{
+  // Greets a particular person.
+  rpc Greet(GreetingRequest) returns (GreetingResponse) {};
+}

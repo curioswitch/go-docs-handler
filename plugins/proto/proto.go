@@ -1,4 +1,4 @@
-package protodescriptorset
+package protodocs
 
 // Go does not generate constants for field numbers, so we vendor
 // in what we need as they won't change.

@@ -45,7 +45,7 @@ syntax = "proto3";
 
 package armeria.grpc.testing;
 
-option go_package = "github.com/curioswitch/go-docs-handler/examples/internal/testing";
+option go_package = "github.com/curioswitch/go-docs-handler/plugins/proto/internal/testing";
 
 enum TestEnum {
   ZERO = 0;

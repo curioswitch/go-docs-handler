@@ -1,4 +1,4 @@
-package protodescriptorset
+package protodocs
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -18,71 +17,124 @@ import (
 	"github.com/curioswitch/go-docs-handler/specification"
 )
 
-func NewPlugin(serializedDescriptors []byte, opts ...Option) docshandler.Plugin {
-	c := newConfig()
+func NewPlugin(service string, opts ...Option) docshandler.Plugin {
+	c := newConfig(service)
 	for _, opt := range opts {
 		opt(c)
 	}
 	return &plugin{
-		serializedDescriptors: serializedDescriptors,
-		config:                c,
+		config: c,
 	}
 }
 
 type plugin struct {
-	serializedDescriptors []byte
-	config                *config
+	config *config
 }
 
 func (p *plugin) GenerateSpecification() (*specification.Specification, error) {
-	var descriptors descriptorpb.FileDescriptorSet
-	if err := proto.Unmarshal(p.serializedDescriptors, &descriptors); err != nil {
-		return nil, fmt.Errorf("unmarshaling descriptors: %w", err)
-	}
-
 	spec := &specification.Specification{}
 
-	docstrings := make(map[string]string)
-
-	for _, file := range descriptors.GetFile() {
-		extractDocStrings(file, docstrings)
-		fileDesc, err := protodesc.NewFile(file, protoregistry.GlobalFiles)
+	var services []protoreflect.ServiceDescriptor
+	for _, service := range p.config.services {
+		desc, err := protoregistry.GlobalFiles.FindDescriptorByName(protoreflect.FullName(service))
 		if err != nil {
-			return nil, fmt.Errorf("reading file descriptor: %w", err)
+			return nil, fmt.Errorf("proto: unable to find descriptor for service '%s': %w", service, err)
 		}
-		for i := 0; i < fileDesc.Messages().Len(); i++ {
-			structs, enums := convertMessage(fileDesc.Messages().Get(i), docstrings)
-			spec.Structs = append(spec.Structs, structs...)
-			spec.Enums = append(spec.Enums, enums...)
+		if svc, ok := desc.(protoreflect.ServiceDescriptor); ok {
+			services = append(services, svc)
+		} else {
+			return nil, fmt.Errorf("proto: descriptor for service '%s' is not a service", service)
 		}
-		for i := 0; i < fileDesc.Enums().Len(); i++ {
-			spec.Enums = append(spec.Enums, convertEnum(fileDesc.Enums().Get(i), docstrings))
-		}
-		for i := 0; i < fileDesc.Services().Len(); i++ {
-			s, err := p.convertService(fileDesc.Services().Get(i), docstrings)
-			if err != nil {
-				return nil, err
-			}
-			spec.Services = append(spec.Services, s)
-		}
-
-		sort.SliceStable(spec.Enums, func(i, j int) bool {
-			return spec.Enums[i].Name < spec.Enums[j].Name
-		})
-
-		sort.SliceStable(spec.Services, func(i, j int) bool {
-			return spec.Services[i].Name < spec.Services[j].Name
-		})
-
-		sort.SliceStable(spec.Structs, func(i, j int) bool {
-			return spec.Structs[i].Name < spec.Structs[j].Name
-		})
 	}
+
+	docstrings := make(map[string]string)
+	if p.config.serializedDescriptors != nil {
+		var descriptors descriptorpb.FileDescriptorSet
+		if err := proto.Unmarshal(p.config.serializedDescriptors, &descriptors); err != nil {
+			return nil, fmt.Errorf("unmarshaling descriptors: %w", err)
+		}
+		for _, file := range descriptors.GetFile() {
+			extractDocStrings(file, docstrings)
+		}
+	}
+
+	msgs := make(map[string]protoreflect.MessageDescriptor)
+	enums := make(map[string]protoreflect.EnumDescriptor)
+
+	// First find what we need to generate for.
+	for _, svc := range services {
+		findServiceMessagesAndEnums(svc, msgs, enums)
+	}
+
+	// Then generate.
+	for _, msg := range msgs {
+		spec.Structs = append(spec.Structs, convertMessage(msg, docstrings))
+	}
+	sort.SliceStable(spec.Structs, func(i, j int) bool {
+		return spec.Structs[i].Name < spec.Structs[j].Name
+	})
+
+	for _, enum := range enums {
+		spec.Enums = append(spec.Enums, convertEnum(enum, docstrings))
+	}
+	sort.SliceStable(spec.Enums, func(i, j int) bool {
+		return spec.Enums[i].Name < spec.Enums[j].Name
+	})
+
+	for _, svc := range services {
+		s, err := p.convertService(svc, docstrings)
+		if err != nil {
+			return nil, err
+		}
+		spec.Services = append(spec.Services, s)
+	}
+	sort.SliceStable(spec.Services, func(i, j int) bool {
+		return spec.Services[i].Name < spec.Services[j].Name
+	})
 
 	return spec, nil
 }
 
-func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]string) ([]specification.Struct, []specification.Enum) {
+func findServiceMessagesAndEnums(svc protoreflect.ServiceDescriptor, msgs map[string]protoreflect.MessageDescriptor, enums map[string]protoreflect.EnumDescriptor) {
+	for i := 0; i < svc.Methods().Len(); i++ {
+		m := svc.Methods().Get(i)
+		findMessageDependencies(m.Input(), msgs, enums)
+		findMessageDependencies(m.Output(), msgs, enums)
+	}
+}
+
+func findMessageDependencies(msg protoreflect.MessageDescriptor, msgs map[string]protoreflect.MessageDescriptor, enums map[string]protoreflect.EnumDescriptor) {
+	if _, ok := msgs[string(msg.FullName())]; ok || msg.IsMapEntry() {
+		return
+	}
+	msgs[string(msg.FullName())] = msg
+	for i := 0; i < msg.Fields().Len(); i++ {
+		field := msg.Fields().Get(i)
+		if field.Message() != nil {
+			findMessageDependencies(field.Message(), msgs, enums)
+		} else if field.Enum() != nil {
+			enumName := string(field.Enum().FullName())
+			if _, ok := enums[enumName]; !ok {
+				enums[enumName] = field.Enum()
+			}
+		}
+	}
+
+	for i := 0; i < msg.Enums().Len(); i++ {
+		enum := msg.Enums().Get(i)
+		enumName := string(enum.FullName())
+		if _, ok := enums[enumName]; !ok {
+			enums[enumName] = enum
+		}
+	}
+
+	for i := 0; i < msg.Messages().Len(); i++ {
+		m := msg.Messages().Get(i)
+		findMessageDependencies(m, msgs, enums)
+	}
+}
+
+func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]string) specification.Struct {
 	res := specification.Struct{
 		Name: string(msg.FullName()),
 	}
@@ -96,24 +148,7 @@ func convertMessage(msg protoreflect.MessageDescriptor, docstrings map[string]st
 		res.Fields = append(res.Fields, convertField(msg, msg.Fields().Get(i), docstrings))
 	}
 
-	var enums []specification.Enum
-	structs := []specification.Struct{res}
-
-	for i := 0; i < msg.Enums().Len(); i++ {
-		enums = append(enums, convertEnum(msg.Enums().Get(i), docstrings))
-	}
-
-	for i := 0; i < msg.Messages().Len(); i++ {
-		m := msg.Messages().Get(i)
-		if m.IsMapEntry() {
-			continue
-		}
-		s, e := convertMessage(msg.Messages().Get(i), docstrings)
-		structs = append(structs, s...)
-		enums = append(enums, e...)
-	}
-
-	return structs, enums
+	return res
 }
 
 func convertField(msg protoreflect.MessageDescriptor, field protoreflect.FieldDescriptor, docstrings map[string]string) specification.Field {

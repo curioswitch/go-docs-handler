@@ -7,7 +7,7 @@ import (
 
 	"github.com/kinbiko/jsonassert"
 
-	"github.com/curioswitch/go-docs-handler/plugins/protodescriptorset"
+	protodocs "github.com/curioswitch/go-docs-handler/plugins/proto"
 )
 
 //go:embed test.descriptors.pb
@@ -22,7 +22,8 @@ var testDescriptors []byte
 var armeriaSpecJSON string
 
 func TestAllParameterTypesMatchesArmeria(t *testing.T) {
-	p := protodescriptorset.NewPlugin(testDescriptors)
+	p := protodocs.NewPlugin("armeria.grpc.testing.TestService",
+		protodocs.WithSerializedDescriptors(testDescriptors))
 	spec, err := p.GenerateSpecification()
 	if err != nil {
 		t.Fatal(err)

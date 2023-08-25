@@ -54,6 +54,15 @@ func New(plugins ...Plugin) (http.Handler, error) {
 		w.WriteHeader(200)
 	}))
 
+	for _, p := range plugins {
+		type hasHandler interface {
+			AddToHandler(handler *http.ServeMux)
+		}
+		if h, ok := p.(hasHandler); ok {
+			h.AddToHandler(mux)
+		}
+	}
+
 	docsClientFS, _ := fs.Sub(docsClient, "docsclient")
 	filesHandler := http.FileServer(http.FS(docsClientFS))
 

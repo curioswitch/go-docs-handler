@@ -1,4 +1,4 @@
-package protodescriptorset
+package protodocs
 
 import (
 	"strings"
