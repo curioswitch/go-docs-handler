@@ -2,13 +2,22 @@ package main
 
 import (
 	"fmt"
+	"golang.org/x/mod/modfile"
+	"os"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
+var projects = getProjects()
+
 func Test() error {
-	return sh.RunV("go", "test", "-v", "./...")
+	for _, project := range projects {
+		if err := sh.RunV("go", "test", "-v", fmt.Sprintf("%s/...", project)); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func Format() error {
@@ -30,4 +39,20 @@ func Lint() error {
 // Check runs lint and tests.
 func Check() {
 	mg.SerialDeps(Lint, Test)
+}
+
+func getProjects() []string {
+	goWork, err := os.ReadFile("go.work")
+	if err != nil {
+		panic(err)
+	}
+	work, err := modfile.ParseWork("go.work", goWork, nil)
+	if err != nil {
+		panic(err)
+	}
+	var res []string
+	for _, use := range work.Use {
+		res = append(res, use.Path)
+	}
+	return res
 }
