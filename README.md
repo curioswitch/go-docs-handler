@@ -31,8 +31,8 @@ func main() {
 	
 	docsHandler, err := docshandler.New(protodocs.NewPlugin(greetconnect.GreetServiceName))
 	if err != nil {
-        panic(err)
-    }
+		panic(err)
+	}
 	
 	// Register the docs handler onto the same mux. It's recommended to give it a prefix.
 	mux.Handle("/docs/", http.StripPrefix("/docs", docsHandler))
@@ -74,8 +74,8 @@ func main() {
 	
 	docsHandler, err := docshandler.New(protodocs.NewPlugin(server))
 	if err != nil {
-        panic(err)
-    }
+		panic(err)
+	}
 	
 	go func() {
 		http.ListenAndServe(":8081", docsHandler)
