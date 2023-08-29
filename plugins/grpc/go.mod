@@ -3,7 +3,7 @@ module github.com/curioswitch/go-docs-handler/plugins/grpc
 go 1.19
 
 require (
-	github.com/curioswitch/go-docs-handler v0.1.1
+	github.com/curioswitch/go-docs-handler v0.1.2
 	google.golang.org/protobuf v1.31.0
 )
 

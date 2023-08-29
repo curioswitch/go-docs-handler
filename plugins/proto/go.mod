@@ -3,7 +3,7 @@ module github.com/curioswitch/go-docs-handler/plugins/proto
 go 1.19
 
 require (
-	github.com/curioswitch/go-docs-handler v0.1.1
+	github.com/curioswitch/go-docs-handler v0.1.2
 	github.com/kinbiko/jsonassert v1.1.1
 	google.golang.org/protobuf v1.31.0
 )
