@@ -108,6 +108,7 @@ type errorResponse struct {
 
 func (p *plugin) AddToHandler(handler *http.ServeMux) {
 	for _, m := range p.methods {
+		m := m
 		handler.HandleFunc(m.path, func(w http.ResponseWriter, r *http.Request) {
 			body := r.Body
 			defer body.Close()
