@@ -1,10 +1,14 @@
 go 1.20
 
+toolchain go1.21.1
+
 use (
 	.
 	./examples/connect
 	./examples/grpc
+	./examples/openapi
 	./magefiles
 	./plugins/grpc
+	./plugins/openapi
 	./plugins/proto
 )
