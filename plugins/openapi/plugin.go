@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/pb33f/libopenapi"
@@ -308,11 +307,14 @@ func (s *schemas) convertStruct(name string, schema *base.Schema) (specification
 		if err != nil {
 			return specification.Struct{}, err
 		}
-		if slices.Contains(schema.Required, name) {
-			field.Requirement = "REQUIRED"
-		} else {
-			field.Requirement = "OPTIONAL"
+		req := "OPTIONAL"
+		for _, r := range schema.Required {
+			if r == name {
+				req = "REQUIRED"
+				break
+			}
 		}
+		field.Requirement = req
 		res.Fields = append(res.Fields, field)
 	}
 
