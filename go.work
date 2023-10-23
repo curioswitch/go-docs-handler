@@ -4,7 +4,9 @@ use (
 	.
 	./examples/connect
 	./examples/grpc
+	./examples/openapi
 	./magefiles
 	./plugins/grpc
+	./plugins/openapi
 	./plugins/proto
 )
